@@ -18,7 +18,7 @@ impl Position {
 
     // Extends the range of the position to the next character
     // taking into account newlines
-    pub fn extend(&mut self, source: &impl Source) {
+    pub fn extend(&mut self, source: &str) {
         let char = source.get_char(&self);
         let newline = matches!(char, Some('\n'));
 
@@ -32,7 +32,7 @@ impl Position {
     }
 
     // Moves the selection to the next character after the current selection
-    pub fn advance(&mut self, source: &impl Source) {
+    pub fn advance(&mut self, source: &str) {
         self.extend(source);
         self.idx += self.len - 1;
         self.start_cn = self.end_cn;

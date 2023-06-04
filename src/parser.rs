@@ -1,4 +1,4 @@
-use crate::{token::{Token, TokenType}, scanner::{Scanner, ScanError}, source::Source};
+use crate::{token::{Token, TokenType}, scanner::{Scanner, ScanError}};
 use anyhow::Result;
 
 #[derive(Debug, thiserror::Error)]
@@ -27,13 +27,13 @@ pub enum Element {
     HTML(String),
 }
 
-pub struct Parser<'a, S: Source> {
-    scanner: &'a mut Scanner<'a, S>,
+pub struct Parser<'a> {
+    scanner: &'a mut Scanner<'a>,
     unused: Vec<Token>,
 }
 
-impl<'a, S: Source> Parser<'a, S> {
-    pub fn parse(scanner: &'a mut Scanner<'a, S>) -> Result<Vec<Element>> {
+impl<'a> Parser<'a> {
+    pub fn parse(scanner: &'a mut Scanner<'a>) -> Result<Vec<Element>> {
         let mut parser = Parser {
             scanner,
             unused: vec![],

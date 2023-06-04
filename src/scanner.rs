@@ -15,13 +15,13 @@ pub enum ScanError {
 }
 
 // The Scanner scans the source code text and returns a list of tokens for parsing
-pub struct Scanner<'a, S: Source + 'a> {
-    src: &'a S,
+pub struct Scanner<'a> {
+    src: &'a str,
     pos: Position,
 }
 
-impl<'a, S: Source + 'a> Scanner<'a, S> {
-    pub fn new(src: &'a S) -> Self {
+impl<'a> Scanner<'a> {
+    pub fn new(src: &'a str) -> Self {
         Self {
             src,
             pos: Position::new(),
