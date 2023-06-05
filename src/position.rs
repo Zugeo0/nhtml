@@ -39,6 +39,10 @@ impl Position {
         self.start_ln = self.end_ln;
         self.len = 1;
     }
+
+    pub fn for_error(&self, src: &str) -> ErrorDisplay {
+        ErrorDisplay(*self, src.to_owned())
+    }
 }
 
 impl Default for Position {
@@ -57,5 +61,42 @@ impl Default for Position {
 impl std::fmt::Display for Position {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!("{}:{}", self.start_ln, self.start_cn))
+    }
+}
+
+#[derive(Debug)]
+pub struct ErrorDisplay(Position, String);
+
+impl std::fmt::Display for ErrorDisplay {
+    // A bunch of confusing string manipulation for pretty error messages
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut res = format!("{}:{}", self.0.start_ln, self.0.start_cn);
+
+        let src = &self.1[..];
+        let line_disp_len = format!("{}", self.0.end_ln).len();
+        let line_disp_padding = " ".repeat(line_disp_len);
+        let lines = src.get_lines(&self.0);
+        let arrow_pad = " ".repeat(self.0.start_cn);
+        
+        let arrows = if self.0.start_ln == self.0.end_ln {
+            "v".repeat(self.0.end_cn - self.0.start_cn + 1)
+        } else {
+            "v".to_owned()
+        };
+    
+        if self.0.start_ln != self.0.end_ln || self.0.start_cn != self.0.end_cn {
+            res.push_str(&format!(" to {}:{}", self.0.end_ln, self.0.end_cn));
+        }
+
+        res.push_str(&format!("\n{} |{}{} -- here\n", line_disp_padding, arrow_pad, arrows));
+        
+        for (idx, ln) in (self.0.start_ln..self.0.end_ln + 1).enumerate() {
+            let line = &lines[idx];
+            res.push_str(&format!("{:width$} | {}\n", ln, line, width = line_disp_len));
+        }
+
+        res.push_str(&format!("{} |\n", line_disp_padding));
+        
+        f.write_str(&res)
     }
 }

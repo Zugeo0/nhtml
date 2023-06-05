@@ -1,3 +1,5 @@
+use crate::position::ErrorDisplay;
+
 use super::source::Source;
 use super::position::Position;
 use super::token::{Token, TokenType};
@@ -5,13 +7,13 @@ use super::token::{Token, TokenType};
 #[derive(Debug, thiserror::Error)]
 pub enum ScanError {
     #[error("Invalid character '{0}' at {1}")]
-    InvalidCharacter(char, Position),
+    InvalidCharacter(char, ErrorDisplay),
 
     #[error("Malformed string at {0}")]
-    MalformedString(Position),
+    MalformedString(ErrorDisplay),
 
     #[error("Malformed HTML at {0}")]
-    MalformedHTML(Position),
+    MalformedHTML(ErrorDisplay),
 }
 
 pub struct Scanner<'a> {
@@ -63,7 +65,7 @@ impl<'a> Scanner<'a> {
 
             c if Self::is_letter(c) => Ok(self.text_token()),
 
-            _ => Err(ScanError::InvalidCharacter(c, self.pos.clone()))
+            _ => Err(ScanError::InvalidCharacter(c, self.pos.for_error(self.src)))
         }
     }
 
@@ -84,7 +86,7 @@ impl<'a> Scanner<'a> {
         self.extend_while(|c| c != '"');
         
         if !matches!(self.src.peek_next(&self.pos), Some('"')) {
-            return Err(ScanError::MalformedString(self.pos.clone()));
+            return Err(ScanError::MalformedString(self.pos.for_error(self.src)));
         }
 
         self.pos.extend(self.src);
@@ -111,7 +113,7 @@ impl<'a> Scanner<'a> {
         }
 
         if !matches!(self.src.peek_next(&self.pos), Some('>')) {
-            return Err(ScanError::MalformedHTML(self.pos.clone()));
+            return Err(ScanError::MalformedHTML(self.pos.for_error(self.src)));
         }
 
         self.pos.extend(self.src);
@@ -140,6 +142,14 @@ impl<'a> Scanner<'a> {
             },
             _ => false,
         }
+    }
+
+    pub fn pos_error(&self, pos: &Position) -> ErrorDisplay {
+        pos.for_error(self.src)
+    } 
+
+    pub fn pos(&self) -> Position {
+        self.pos
     }
 
     fn token(&mut self, ty: TokenType) -> Option<Token> {

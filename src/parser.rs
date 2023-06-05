@@ -1,16 +1,13 @@
-use crate::{token::{Token, TokenType}, scanner::{Scanner, ScanError}};
+use crate::{token::{Token, TokenType}, scanner::{Scanner, ScanError}, position::ErrorDisplay};
 use anyhow::Result;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ParseError {
-    #[error("Unexpected token. {0}, {1:#?}")]
-    UnexpectedToken(String, Option<Token>),
+    #[error("{0} at {1}")]
+    UnexpectedToken(String, ErrorDisplay),
 
-    #[error("Expected tag. Got {0:#?}")]
-    ExpectedTag(Option<Token>),
-
-    #[error("Expected element. Got {0:#?}")]
-    ExpectedElement(Option<Token>),
+    #[error("Expected element at {0}")]
+    ExpectedElement(ErrorDisplay),
 }
 
 #[derive(Debug)]
@@ -89,7 +86,7 @@ impl<'a> Parser<'a> {
         
         let value = if self.is_next(TokenType::Equal) {
             self.take()?;
-            let value = self.expect(TokenType::String, "Expected string value for attribute")?;
+            let value = self.expect(TokenType::String, "Expected string value")?;
             Some(value.lexeme)
         } else {
             None
@@ -110,8 +107,11 @@ impl<'a> Parser<'a> {
             let mut body = vec![];
 
             while !self.is_next(TokenType::RightBrace) {
-                let tag = self.parse_element()?.ok_or_else(|| ParseError::ExpectedTag(self.take().unwrap()))?;
-                body.push(tag);
+                let tag = self.parse_element()?;
+                if tag.is_none() {
+                    return Err(ParseError::ExpectedElement(self.error_pos()?))?;
+                }
+                body.push(tag.unwrap());
             }
 
             self.take()?;
@@ -119,8 +119,11 @@ impl<'a> Parser<'a> {
             return Ok(body);
         }
 
-        let body = self.parse_element()?.ok_or_else(|| ParseError::ExpectedElement(self.take().unwrap()))?;
-        Ok(vec![body])
+        let body = self.parse_element()?;
+        if body.is_none() {
+            return Err(ParseError::ExpectedElement(self.error_pos()?))?;
+        }
+        Ok(vec![body.unwrap()])
     }
 
     fn is_next(&mut self, ty: TokenType) -> bool {
@@ -134,8 +137,18 @@ impl<'a> Parser<'a> {
         if self.is_next(expected) {
             Ok(self.take()?.unwrap())
         } else {
-            Err(ParseError::UnexpectedToken(msg.to_owned(), self.take()?))?
+            Err(ParseError::UnexpectedToken(msg.to_owned(), self.error_pos()?))?
         }
+    }
+
+    fn error_pos(&mut self) -> Result<ErrorDisplay> {
+        let pos = if let Some(t) = self.take()? {
+            t.pos
+        } else {
+            self.scanner.pos()
+        };
+
+        Ok(self.scanner.pos_error(&pos))
     }
 
     fn take(&mut self) -> Result<Option<Token>, ScanError> {
