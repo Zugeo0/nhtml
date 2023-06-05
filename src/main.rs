@@ -5,24 +5,75 @@ mod source;
 mod token;
 mod emitter;
 
-use parser::Parser;
+use std::path::PathBuf;
+
+use clap::{Parser, Subcommand};
 use scanner::Scanner;
-use anyhow::Result;
+use anyhow::{Result, Context};
 
 pub fn transpile(input: &str) -> Result<String> {
     let mut scanner = Scanner::new(input);
-    let elems = Parser::parse(&mut scanner)?;
+    let elems = parser::Parser::parse(&mut scanner)?;
     let res = emitter::emit_html(elems);
 
     Ok(res)
 }
 
-fn main() -> anyhow::Result<()> {
-    let res = transpile(include_str!("../test.nhtml"))?;
 
-    std::fs::write("test.html", res)?;
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Convert {
+        path: PathBuf,
+        output: PathBuf,
+    },
+    Watch {
+        path: PathBuf,
+        output: PathBuf,
+    }
+}
+
+fn transpile_from_to(path: PathBuf, output: PathBuf) -> Result<()> {
+    let input = std::fs::read_to_string(path).context("Failed to read input file")?;
+    let res = transpile(&input)?;
+    std::fs::write(output, res).context("Failed to write transpiled code to file")?;
+    Ok(())
+}
+
+fn main() -> anyhow::Result<()> {
+    let cli = Cli::parse();
+
+    match cli.command {
+        Commands::Convert { path, output } => {
+            transpile_from_to(path, output)?;
+        },
+        Commands::Watch { path, output } => {
+            transpile_from_to(path.clone(), output.clone())?;
+            println!("Watching '{}'. Press CTRL-C to quit", path.to_str().unwrap());
+            watch(path, output)?;
+        },
+    }
 
     Ok(())
+}
+
+fn watch(input: PathBuf, output: PathBuf) -> Result<()> {
+    use notify::{Watcher, RecursiveMode, RecommendedWatcher, Config};
+
+    let (tx, rx) = std::sync::mpsc::channel();
+    let mut watcher = RecommendedWatcher::new(tx, Config::default()).context("Failed to create watcher")?;
+    watcher.watch(input.as_ref(), RecursiveMode::Recursive).context("Failed to start watcher on path")?;
+
+    loop {
+        let _ = rx.recv().context("Watcher failed")?;
+        transpile_from_to(input.clone(), output.clone())?;
+    }
 }
 
 #[cfg(test)]
