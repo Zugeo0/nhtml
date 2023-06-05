@@ -14,7 +14,6 @@ pub enum ScanError {
     MalformedHTML(Position),
 }
 
-// The Scanner scans the source code text and returns a list of tokens for parsing
 pub struct Scanner<'a> {
     src: &'a str,
     pos: Position,
@@ -28,8 +27,6 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    // Scans the source for the next token, returning none if no token was found.
-    // May return a scan error if a token is malformed or anything unexpected appears in the source.
     pub fn scan(&mut self) -> Result<Option<Token>, ScanError> {
         let c = match self.src.get_char(&self.pos) {
             Some(c) => c,
@@ -70,13 +67,13 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    
-
     fn multiline_comment(&mut self) {
         while let Some(c) = self.src.peek_next(&self.pos) {
             self.pos.extend(self.src);
 
             if c == '*' && matches!(self.src.peek_next(&self.pos), Some('/')) {
+                self.pos.extend(self.src);
+                self.pos.advance(self.src);
                 break;
             }
         }

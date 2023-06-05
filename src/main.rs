@@ -11,8 +11,8 @@ use anyhow::Result;
 
 pub fn transpile(input: &str) -> Result<String> {
     let mut scanner = Scanner::new(input);
-    let tags = Parser::parse(&mut scanner)?;
-    let res = emitter::emit_html(tags);
+    let elems = Parser::parse(&mut scanner)?;
+    let res = emitter::emit_html(elems);
 
     Ok(res)
 }
