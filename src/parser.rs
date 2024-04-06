@@ -104,6 +104,7 @@ impl<'a> Parser<'a> {
         if self.is_next(TokenType::String) {
             // Should always succeed when unwrapping because of the above check
             let elem = self.parse_element()?.unwrap();
+            self.expect(TokenType::Semicolon, "Expected ';'")?;
             return Ok(vec![elem])
         }
 

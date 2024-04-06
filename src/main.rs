@@ -90,17 +90,17 @@ mod tests {
                 meta charset="UTF-8";
                 meta name="viewport" content="width=device-width, initial-scale=1.0";
                 meta http-equiv="X-UA-Compatible" content="ie=edge";
-                title "HTML 5 Boilerplate"
+                title "HTML 5 Boilerplate";
                 link rel="stylesheet" href="style.css";
               }
 
               // Main body
               body {
                 script src="index.js";
-                a class="test" "Hello"
-                a class='test' 'Hello'
+                a class="test" "Hello";
+                a class='test' 'Hello';
             
-                p "Hello App!"
+                p "Hello App!";
               }
             }
         "#;
