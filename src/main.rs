@@ -96,6 +96,7 @@ mod tests {
               body {
             	script src="index.js";
                 a class="test" "Hello"
+                a class='test' 'Hello'
             
                 p "Hello App!"
               }
@@ -116,6 +117,9 @@ mod tests {
     <body>
         <script src="index.js"></script>
         <a class="test">
+            Hello
+        </a>
+        <a class='test'>
             Hello
         </a>
         <p>
