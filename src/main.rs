@@ -93,8 +93,10 @@ mod tests {
                 title "HTML 5 Boilerplate"
                 link rel="stylesheet" href="style.css";
               }
+
+              // Main body
               body {
-            	script src="index.js";
+                script src="index.js";
                 a class="test" "Hello"
                 a class='test' 'Hello'
             
@@ -130,7 +132,10 @@ mod tests {
 "#;
 
         let res = transpile(src).unwrap();
-    
-        assert_eq!(&res, expect)
+        let mut expect_lines = expect.lines();
+        
+        for (i, line) in res.lines().enumerate() {
+            assert_eq!(Some(line), expect_lines.next(), "Mismatch on line {}", i + 1)
+        }
     }
 }

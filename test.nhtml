@@ -8,17 +8,13 @@ html lang="en" {
     title "HTML 5 Boilerplate"
     link rel="stylesheet" href="style.css";
   }
-  body {
-    h1 {
-      "Hello, " span "World" "!"
-    }
-    
-    p class="test" "Hello"
-    p class='test' 'Hello'
-    
-    div class="red";
 
-	script src="index.js";
+  // Main body
+  body {
+  script src="index.js";
+    a class="test" "Hello"
+    a class='test' 'Hello'
+
     p "Hello App!"
   }
 }

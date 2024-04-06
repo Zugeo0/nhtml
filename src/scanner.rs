@@ -48,6 +48,11 @@ impl<'a> Scanner<'a> {
                 self.scan()
             },
 
+            '/' if self.if_next('/') => {
+                self.singleline_comment();
+                self.scan()
+            }
+
             '<' => self.html_token(),
 
             '\\' => {
@@ -75,6 +80,18 @@ impl<'a> Scanner<'a> {
             self.pos.extend(self.src);
 
             if c == '*' && matches!(self.src.peek_next(&self.pos), Some('/')) {
+                self.pos.extend(self.src);
+                self.pos.advance(self.src);
+                break;
+            }
+        }
+    }
+
+    fn singleline_comment(&mut self) {
+        while let Some(c) = self.src.peek_next(&self.pos) {
+            self.pos.extend(self.src);
+
+            if c == '\n' {
                 self.pos.extend(self.src);
                 self.pos.advance(self.src);
                 break;
