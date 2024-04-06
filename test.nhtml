@@ -9,8 +9,15 @@ html lang="en" {
     link rel="stylesheet" href="style.css";
   }
   body {
-	  script src="index.js";
+    h1 {
+      "Hello, " span "World" "!"
+    }
+    
+    p class="test" "Hello"
+    
+    div class="red";
 
+	script src="index.js";
     p "Hello App!"
   }
 }

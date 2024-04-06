@@ -66,7 +66,7 @@ impl<'a> Parser<'a> {
         let mut attribs = vec![];
 
         if self.is_next(TokenType::Text) {
-            while !(self.is_next(TokenType::LeftBrace) || self.is_next(TokenType::Semicolon)) {
+            while !(self.is_next(TokenType::LeftBrace) || self.is_next(TokenType::Semicolon) || self.is_next(TokenType::String)) {
                 attribs.push(self.parse_attrib()?);
             }
         }
@@ -99,6 +99,12 @@ impl<'a> Parser<'a> {
         if self.is_next(TokenType::Semicolon) {
             self.take()?;
             return Ok(vec![]);
+        }
+
+        if self.is_next(TokenType::String) {
+            // Should always succeed when unwrapping because of the above check
+            let elem = self.parse_element()?.unwrap();
+            return Ok(vec![elem])
         }
 
         if self.is_next(TokenType::LeftBrace) {
