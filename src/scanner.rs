@@ -102,7 +102,6 @@ impl<'a> Scanner<'a> {
     fn string_token(&mut self) -> Result<Option<Token>, ScanError> {
         let delimeter = self.src.get_char(&self.pos)
             .expect("Scanner::string_token cannot be called with no current character");
-        self.pos.extend(self.src);
         self.extend_while(|c| c != delimeter);
 
         let next = self.src.peek_next(&self.pos);
