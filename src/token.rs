@@ -15,5 +15,7 @@ pub enum TokenType {
     LeftBrace,
     RightBrace,
     Html,
+    Js,
+    Css,
     Semicolon,
 }

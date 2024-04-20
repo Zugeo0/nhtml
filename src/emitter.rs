@@ -15,6 +15,8 @@ fn emit_element(html: &mut String, element: &Element, indent: usize) {
         Element::Tag(tag) => emit_tag(html, tag, indent),
         Element::Text(text) => html.push_str(&format!("{}{}\n", indent_str(indent), text)),
         Element::HTML(raw_html) => html.push_str(&format!("{}{}\n", indent_str(indent), raw_html)),
+        Element::Js(raw_js) => html.push_str(&format!("{}\n", raw_js)),
+        Element::Css(raw_css) => html.push_str(&format!("{}\n", raw_css)),
     }
 }
 

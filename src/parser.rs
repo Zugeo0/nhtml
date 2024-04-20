@@ -22,6 +22,8 @@ pub enum Element {
     Tag(Tag),
     Text(String),
     HTML(String),
+    Js(String),
+    Css(String),
 }
 
 pub struct Parser<'a> {
@@ -56,6 +58,14 @@ impl<'a> Parser<'a> {
         } else if self.is_next(TokenType::Html) {
             let html = self.take()?.unwrap();
             Ok(Some(Element::HTML(html.lexeme)))
+        } else if self.is_next(TokenType::Js) {
+            let js = self.take()?.unwrap();
+            let source = &js.lexeme[3..js.lexeme.len() - 1];
+            Ok(Some(Element::Js(source.to_string())))
+        } else if self.is_next(TokenType::Html) {
+            let css = self.take()?.unwrap();
+            let source = &css.lexeme[4..css.lexeme.len() - 1];
+            Ok(Some(Element::Css(source.to_string())))
         } else {
             Ok(None)
         }

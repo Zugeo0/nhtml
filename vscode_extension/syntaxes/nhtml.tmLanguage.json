@@ -1,0 +1,162 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "nhtml",
+	"patterns": [
+		{ "include": "#comments" },
+		{ "include": "#html" },
+		{ "include": "#scriptbody" },
+		{ "include": "#stylebody" },
+		{ "include": "#literal" },
+		{ "include": "#tag" }
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.block",
+					"begin": "/\\*",
+					"end": "\\*/",
+					"patterns": [{
+						"name": "constant.character.escape.nhtml",
+						"match": "\\\\."
+					}]
+				},
+				{
+					"name": "comment.line.double-slash",
+					"begin": "//",
+					"end": "\n",
+					"patterns": [{
+						"name": "constant.character.escape.nhtml",
+						"match": "\\\\."
+					}]
+				}
+			]
+		},
+		"html": {
+			"name": "entity.name.tag",
+			"begin": "\\<",
+			"end": "\\>",
+			"patterns": [{
+				"match": "\\\\."
+			}]
+		},
+		"tag": {
+			"patterns": [
+				{
+					"begin": "(\\b[a-zA-Z-_]+)",
+					"beginCaptures": {
+						"1": { "name": "keyword.nhtml" }
+					},
+					"end": "(;)|(?=\\{)|(?=js)|(?=css)",
+					"patterns": [
+						{
+							"include": "#attrib"
+						},
+						{
+							"include": "#literal"
+						}
+					]
+				}
+			]
+		},
+		"attrib": {
+			"patterns": [
+				{
+					"name": "variable.name.nhtml",
+					"match": "[a-zA-Z-_]+"
+				},
+				{
+					"include": "#fieldvalue"
+				}
+			]
+		},
+		"literal": {
+			"patterns": [
+				{
+					"name": "constant.nhtml",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.nhtml",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "constant.nhtml",
+					"begin": "'",
+					"end": "'",
+					"patterns": [
+						{
+							"name": "constant.character.escape.nhtml",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"fieldvalue": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.nhtml",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.nhtml",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "string.quoted.single.nhtml",
+					"begin": "'",
+					"beginCaptures": {
+						"1": { "name": "keyword.operator.nhtml" }
+					},
+					"end": "'",
+					"patterns": [
+						{
+							"name": "constant.character.escape.nhtml",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"scriptbody": {
+			"name": "meta.embedded.block.javascript",
+			"begin": "(js{)",
+			"beginCaptures": {
+				"1": { "name": "keyword.nhtml" }
+			},
+			"end": "(})",
+			"endCaptures": {
+				"1": { "name": "keyword.nhtml" }
+			},
+			"patterns": [
+				{
+					"include": "source.js"
+				}
+			]
+		},
+		"stylebody": {
+			"name": "meta.embedded.block.css",
+			"begin": "(css{)",
+			"beginCaptures": {
+				"1": { "name": "keyword.nhtml" }
+			},
+			"end": "(})",
+			"endCaptures": {
+				"1": { "name": "keyword.nhtml" }
+			},
+			"patterns": [
+				{
+					"include": "source.css"
+				}
+			]
+		}
+	},
+	"scopeName": "source.nhtml"
+}

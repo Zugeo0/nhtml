@@ -14,6 +14,12 @@ pub enum ScanError {
 
     #[error("Malformed HTML at {0}")]
     MalformedHTML(ErrorDisplay),
+
+    #[error("Malformed JS at {0}")]
+    MalformedJS(ErrorDisplay),
+
+    #[error("Malformed CSS at {0}")]
+    MalformedCSS(ErrorDisplay),
 }
 
 pub struct Scanner<'a> {
@@ -69,7 +75,7 @@ impl<'a> Scanner<'a> {
                 self.scan()
             }
 
-            c if Self::is_letter(c) => Ok(self.text_token()),
+            c if Self::is_letter(c) => self.text_token(),
 
             _ => Err(ScanError::InvalidCharacter(c, self.pos.for_error(self.src)))
         }
@@ -141,9 +147,69 @@ impl<'a> Scanner<'a> {
         Ok(self.token(TokenType::Html))
     }
 
-    fn text_token(&mut self) -> Option<Token> {
+    fn text_token(&mut self) -> Result<Option<Token>, ScanError> {
         self.extend_while(Self::is_letter_or_digit);
-        self.token(TokenType::Text)
+
+        match (self.src.get_str(&self.pos), &self.src.peek_next(&self.pos)) {
+            ("js", Some('{')) => self.parse_js(),
+            ("css", Some('{')) => self.parse_css(),
+
+            (_, _) => Ok(self.token(TokenType::Text))
+        }
+    }
+
+    fn parse_js(&mut self) -> Result<Option<Token>, ScanError> {
+        self.pos.extend(&self.src);
+
+        let mut depth = 0;
+        while let Some(c) = self.src.peek_next(&self.pos) {
+            if c == '{' {
+                depth += 1;
+            }
+
+            if c == '}' {
+                if depth == 0 {
+                    break;
+                }
+
+                depth -= 1;
+            }
+            self.pos.extend(self.src);
+        }
+
+        if !matches!(self.src.peek_next(&self.pos), Some('}')) {
+            return Err(ScanError::MalformedJS(self.pos.for_error(self.src)));
+        }
+
+        self.pos.extend(self.src);
+        Ok(self.token(TokenType::Js))
+    }
+
+    fn parse_css(&mut self) -> Result<Option<Token>, ScanError> {
+        self.pos.extend(&self.src);
+
+        let mut depth = 0;
+        while let Some(c) = self.src.peek_next(&self.pos) {
+            if c == '{' {
+                depth += 1;
+            }
+
+            if c == '}' {
+                if depth == 0 {
+                    break;
+                }
+
+                depth -= 1;
+            }
+            self.pos.extend(self.src);
+        }
+
+        if !matches!(self.src.peek_next(&self.pos), Some('}')) {
+            return Err(ScanError::MalformedCSS(self.pos.for_error(self.src)));
+        }
+
+        self.pos.extend(self.src);
+        Ok(self.token(TokenType::Css))
     }
 
     fn extend_while<F: Fn(char) -> bool>(&mut self, func: F) {

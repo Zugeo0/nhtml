@@ -146,7 +146,9 @@ fn watch(input: &Path, output: &Path) -> Result<()> {
 }
 
 fn watch_event(event: &notify::Event, input: &Path, output: &Path) -> Result<()> {
-    if event.paths[0].is_dir() {
+    let path = &event.paths[0];
+
+    if path.is_dir() {
         return Ok(());
     }
 
@@ -154,25 +156,28 @@ fn watch_event(event: &notify::Event, input: &Path, output: &Path) -> Result<()>
         return Ok(());
     }
 
-    if !check_extension(&event.paths[0], "nhtml") {
+    if !check_extension(&path, "nhtml") {
         return Ok(());
     }
 
     let cwd = std::env::current_dir()?;
     let base_path: PathBuf = if input.is_absolute() { input.to_path_buf() } else { cwd.join(input) };
 
-    if output.is_file() {
+    if !output.exists() || output.is_file() {
+        println!("changes detected: {} -> {}", input.display(), output.display());
+
         transpile_file(
-            &event.paths[0],
+            &path,
             &output
         )?;
     } else {
-        let relative_out = event.paths[0].strip_prefix(base_path)?;
+        let relative_out = path.strip_prefix(&base_path)?;
         let out = output.join(relative_out)
             .with_extension("html");
+        println!("{} {} {} {}", path.display(), base_path.display(), out.display(), relative_out.display());
 
         transpile_file(
-            &event.paths[0],
+            &path,
             &out
         )?;
     }
