@@ -1,37 +1,15 @@
 <!DOCTYPE html>
 
-html lang="en" {
+html lang='en' {
   head {
-    meta charset="UTF-8";
-    meta name="viewport" content="width=device-width, initial-scale=1.0";
-    meta http-equiv="X-UA-Compatible" content="ie=edge";
-    title "HTML 5 Boilerplate";
-    link rel="stylesheet" href="style.css";
+    meta charset='UTF-8';
+    meta name='viewport' content='width=device-width, initial-scale=1.0';
+    meta http-equiv='X-UA-Compatible' content='ie=edge';
+    title 'HTML 5 Boilerplate';
   }
 
   // Main body
   body {
-    script src="index.js";
 
-    script js{
-      let test = "Hello world";
-
-      function foo(a) {
-        console.log(a);
-      }
-
-      foo(test);
-    }
-
-    style css{
-      main {
-
-      }
-    }
-
-    a class="test" "Hello";
-    a class='test' 'Hello';
-
-    p "Hello App!";
   }
 }

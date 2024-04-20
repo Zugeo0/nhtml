@@ -62,7 +62,7 @@ impl<'a> Parser<'a> {
             let js = self.take()?.unwrap();
             let source = &js.lexeme[3..js.lexeme.len() - 1];
             Ok(Some(Element::Js(source.to_string())))
-        } else if self.is_next(TokenType::Html) {
+        } else if self.is_next(TokenType::Css) {
             let css = self.take()?.unwrap();
             let source = &css.lexeme[4..css.lexeme.len() - 1];
             Ok(Some(Element::Css(source.to_string())))

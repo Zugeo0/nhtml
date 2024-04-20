@@ -5,7 +5,7 @@ mod source;
 mod token;
 mod emitter;
 
-use std::{ffi::OsStr, path::{Path, PathBuf}};
+use std::{ffi::OsStr, path::{Path, PathBuf}, time::Duration};
 
 use clap::{Parser, Subcommand};
 use scanner::Scanner;
@@ -115,7 +115,9 @@ fn main() -> anyhow::Result<()> {
                 eprintln!("Cannot output directory to a file");
                 return Ok(());
             }
-            transpile_from_to(&path, &output)?;
+            if let Err(e) = transpile_from_to(&path, &output) {
+                eprintln!("{e}");
+            }
             println!("Watching '{}'. Press CTRL-C to quit", path.to_str().unwrap());
             watch(&path, &output)?;
         },
@@ -125,19 +127,25 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn watch(input: &Path, output: &Path) -> Result<()> {
-    use notify::{Watcher, RecursiveMode, RecommendedWatcher, Config};
+    use notify::{Watcher, RecursiveMode};
+    use notify_debouncer_full::new_debouncer;
 
     let (tx, rx) = std::sync::mpsc::channel();
 
-    let mut watcher = RecommendedWatcher::new(tx, Config::default())
-        .context("Failed to create watcher")?;
+    let mut debouncer = new_debouncer(Duration::from_millis(250), None, tx)?;
 
-    watcher.watch(&input, RecursiveMode::Recursive)
+    debouncer.watcher().watch(&input, RecursiveMode::Recursive)
         .context("Failed to start watcher on path")?;
 
     for res in rx {
         match res {
-            Ok(event) => watch_event(&event, input, output)?,
+            Ok(events) => {
+                events.iter().for_each(|event| {
+                    if let Err(e) = watch_event(&event, input, output) {
+                        eprintln!("{e}");
+                    }
+                })
+            },
             Err(err) => println!("err: {err:?}"),
         }
     }
