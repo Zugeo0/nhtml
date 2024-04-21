@@ -43,7 +43,7 @@
 		"tag": {
 			"patterns": [
 				{
-					"begin": "(\\b[a-zA-Z-_]+)",
+					"begin": "(\\b[a-zA-Z0-9-_]+)",
 					"beginCaptures": {
 						"1": { "name": "keyword.nhtml" }
 					},
@@ -63,40 +63,14 @@
 			"patterns": [
 				{
 					"name": "variable.name.nhtml",
-					"match": "[a-zA-Z-_]+"
+					"match": "[a-zA-Z0-9-_]+"
 				},
 				{
-					"include": "#fieldvalue"
+					"include": "#literal"
 				}
 			]
 		},
 		"literal": {
-			"patterns": [
-				{
-					"name": "constant.nhtml",
-					"begin": "\"",
-					"end": "\"",
-					"patterns": [
-						{
-							"name": "constant.character.escape.nhtml",
-							"match": "\\\\."
-						}
-					]
-				},
-				{
-					"name": "constant.nhtml",
-					"begin": "'",
-					"end": "'",
-					"patterns": [
-						{
-							"name": "constant.character.escape.nhtml",
-							"match": "\\\\."
-						}
-					]
-				}
-			]
-		},
-		"fieldvalue": {
 			"patterns": [
 				{
 					"name": "string.quoted.double.nhtml",

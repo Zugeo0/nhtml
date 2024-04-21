@@ -2,13 +2,15 @@
 
 html lang='en' {
   head {
+    // Meta Info
     meta charset='UTF-8';
     meta name='viewport' content='width=device-width, initial-scale=1.0';
     meta http-equiv='X-UA-Compatible' content='ie=edge';
+
+    // Site info
     title 'HTML 5 Boilerplate';
   }
 
-  // Main body
   body {
 
   }
