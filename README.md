@@ -1,5 +1,7 @@
 # Nicer HTML
 
+![Build & Tests Status](https://github.com/Zugeo0/nhtml/actions/workflows/rust.yml/badge.svg)
+
 To get started. Clone this repository and install with cargo
 
 Requires Rust and Cargo to be installed
