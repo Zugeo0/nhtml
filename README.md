@@ -23,3 +23,26 @@ nhtml watch input.nhtml output.nhtml
 # or
 nhtml watch src/ out/
 ```
+
+Example nhtml file
+
+```
+<!DOCTYPE html>
+
+html lang='en' {
+  head {
+    // Meta Info
+    meta charset='UTF-8';
+    meta name='viewport' content='width=device-width, initial-scale=1.0';
+    meta http-equiv='X-UA-Compatible' content='ie=edge';
+
+    // Site info
+    title 'HTML 5 Boilerplate';
+  }
+
+  body {
+    /* Add Body Here */
+  }
+}
+
+```
