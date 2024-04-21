@@ -14,6 +14,8 @@ Then you are able to use the nhtml command to convert nhtml files to html
 
 ```sh
 nhtml convert input.nhtml output.html
+# or
+nhtml convert src/ out/
 ```
 
 You are also able to watch files and directories for changes
